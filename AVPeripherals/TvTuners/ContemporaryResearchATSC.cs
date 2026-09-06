@@ -132,7 +132,7 @@ public partial class ContemporaryResearchATSC : ICommunicationChannel<string>, I
 	}
 
 	#region Polling
-	private async Task SendPollingInfoAsync(CancellationToken ct)
+	private void SendPollingInfoAsync()
 	{
 		if (ChannelTx is null) return;
 		_ = ChannelTx.TryWrite($">{UnitId}ST\r\n>{UnitId}SQ\r\n");
@@ -144,9 +144,7 @@ public partial class ContemporaryResearchATSC : ICommunicationChannel<string>, I
 		try
 		{
 			while (await timer.WaitForNextTickAsync(ct))
-			{
-				await SendPollingInfoAsync(ct);
-			}
+			{ SendPollingInfoAsync(); }
 		}
 		catch (OperationCanceledException) { }
 		finally { timer.Dispose(); }
@@ -187,7 +185,7 @@ public partial class ContemporaryResearchATSC : ICommunicationChannel<string>, I
 	{
 		if (ChannelTx is null || ChannelRx is null) throw new InvalidOperationException("Communication channels are not linked.");
 		//ChannelTx.TryWrite($">{UnitId}ST\r\n>{UnitId}SS\r\n>{UnitId}SQ\r\n");
-		ChannelTx.TryWrite($">{UnitId}ST\r\n>{UnitId}SQ\r\n");
+		//ChannelTx.TryWrite($">{UnitId}ST\r\n>{UnitId}SQ\r\n");
 		Task pollTask = PollDeviceAsync(ct);
 		Task rxTask = ReceiveRxMessagesAsync(ct);
 		await Task.WhenAll(pollTask, rxTask);
